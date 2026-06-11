@@ -20,7 +20,8 @@ class Settings(BaseSettings):
     """Strongly-typed application settings."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        # Absolute path so settings load no matter the current directory.
+        env_file=str(BASE_DIR / ".env"),
         env_file_encoding="utf-8",
         extra="ignore",
     )
