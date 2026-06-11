@@ -1,0 +1,4 @@
+# Debian 12 (bookworm) via Liara mirror — copy to /etc/apt/sources.list
+deb http://linux-mirror.liara.ir/repository/debian/ bookworm main contrib non-free non-free-firmware
+deb http://linux-mirror.liara.ir/repository/debian/ bookworm-updates main contrib non-free non-free-firmware
+deb http://linux-mirror.liara.ir/repository/debian-security/ bookworm-security main contrib non-free non-free-firmware
