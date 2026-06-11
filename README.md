@@ -67,8 +67,22 @@ Edit `backend/.env`:
 | `OPENAI_API_KEY`  | **Required** for AI recommendations.                           |
 | `OPENAI_MODEL`    | Defaults to `gpt-4o-mini`.                                      |
 | `IG_USERNAME` / `IG_PASSWORD` | Optional. Log in **once** for reliable fetching — a session is cached to `.ig_sessions/`, so the password is only used the first time. Use a throwaway account. |
+| `IG_PROXY`        | Set when `instagram.com` is network-blocked (common in Iran), e.g. `http://127.0.0.1:10809` or `socks5h://127.0.0.1:1080`. |
 | `IG_POST_LIMIT`   | Number of recent posts to analyze (default 20).                |
 | `DATABASE_URL`    | Defaults to local SQLite. Swap for Postgres later, no code changes. |
+
+### One-time Instagram login
+
+Anonymous Instagram requests get blocked. Log in once (use a secondary account):
+
+```powershell
+cd backend
+python login_instagram.py        # asks for user / password / 2FA, caches a session
+```
+
+Then set just `IG_USERNAME` in `.env` (no password needed afterwards). If
+`instagram.com` is filtered on your network, set `IG_PROXY` first so the helper
+and the app route through your VPN/proxy.
 
 > **On Instagram reliability:** anonymous requests are aggressively rate-limited
 > and often blocked. Configuring `IG_USERNAME`/`IG_PASSWORD` once makes fetching
@@ -99,6 +113,14 @@ npm run dev
 
 Open <http://localhost:3000>, enter a public Instagram username, and watch the
 analysis stream into the dashboard.
+
+### Languages
+
+The UI ships in **Persian (default), Arabic and English** with a live toggle in
+the header and full RTL support. The selected language is also sent to the
+backend so the AI growth report is written in that language. Static UI strings
+and the analyzer insights switch instantly; the AI narrative is generated in the
+language chosen when the analysis was started.
 
 ---
 
