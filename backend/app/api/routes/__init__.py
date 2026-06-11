@@ -1,0 +1,5 @@
+"""API routes."""
+
+from app.api.routes.analysis import router as analysis_router
+
+__all__ = ["analysis_router"]
