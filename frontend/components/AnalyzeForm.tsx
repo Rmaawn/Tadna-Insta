@@ -45,10 +45,10 @@ export function AnalyzeForm() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder={t("form.placeholder")}
-          className="flex-1 bg-transparent text-base text-white placeholder:text-slate-500 focus:outline-none"
+          className="flex-1 bg-transparent text-base text-white placeholder:text-slate-500 focus:outline-none rtl:text-right"
           autoFocus
           spellCheck={false}
-          dir="ltr"
+          dir="auto"
         />
         <button
           type="submit"

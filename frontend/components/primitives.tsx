@@ -1,21 +1,38 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
 import { useI18n } from "./LanguageProvider";
+
+/**
+ * Minimal brand mark: three ascending rounded bars (growth analytics) topped
+ * with a spark dot (the AI signal). Clean, geometric, on-theme.
+ */
+export function BrandMark({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" fill="none" className={className} aria-hidden>
+      <rect x="5" y="18" width="4.4" height="9" rx="2.2" fill="white" fillOpacity="0.85" />
+      <rect x="13.8" y="12.5" width="4.4" height="14.5" rx="2.2" fill="white" fillOpacity="0.95" />
+      <rect x="22.6" y="7" width="4.4" height="20" rx="2.2" fill="white" />
+      <circle cx="24.8" cy="3.7" r="2.4" fill="white" />
+    </svg>
+  );
+}
 
 export function Logo({ className = "" }: { className?: string }) {
   const { t } = useI18n();
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
       <div className="relative grid h-9 w-9 place-items-center rounded-xl bg-accent-gradient shadow-glow">
-        <Sparkles className="h-5 w-5 text-white" strokeWidth={2.4} />
+        <BrandMark />
       </div>
-      <div className="leading-tight" dir="ltr">
-        <div className="text-sm font-semibold tracking-tight text-white">
+      <div className="leading-tight">
+        <div
+          className="text-sm font-semibold tracking-tight text-white rtl:text-right"
+          dir="ltr"
+        >
           Tadna<span className="gradient-text"> Insta</span>
         </div>
-        <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+        <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 rtl:text-right">
           {t("brand.tag")}
         </div>
       </div>
