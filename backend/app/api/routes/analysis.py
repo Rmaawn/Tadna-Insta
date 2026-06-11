@@ -34,7 +34,7 @@ async def health() -> dict:
         "status": "ok",
         "app": settings.app_name,
         "ai_enabled": settings.ai_enabled,
-        "ig_login_enabled": settings.ig_login_enabled,
+        "ig_login_enabled": settings.ig_auth_enabled,
         "ai_model": settings.openai_model if settings.ai_enabled else None,
     }
 

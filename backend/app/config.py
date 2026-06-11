@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     # --- Instagram ---
     ig_username: str | None = None
     ig_password: str | None = None
+    # Paste the `sessionid` cookie from Chrome DevTools to authenticate without
+    # a password or checkpoint (the most reliable path for local development).
+    ig_sessionid: str | None = None
+    ig_ds_user_id: str | None = None
     ig_post_limit: int = Field(default=20, ge=1, le=50)
     ig_session_dir: str = "./.ig_sessions"
     # Route Instagram traffic through a proxy (needed where instagram.com is
@@ -59,6 +63,11 @@ class Settings(BaseSettings):
     @property
     def ig_login_enabled(self) -> bool:
         return bool(self.ig_username and self.ig_password)
+
+    @property
+    def ig_auth_enabled(self) -> bool:
+        """True if any authentication method (sessionid, session file, login)."""
+        return bool(self.ig_sessionid or self.ig_username)
 
     @property
     def proxies(self) -> dict[str, str] | None:

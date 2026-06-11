@@ -81,18 +81,24 @@ class InstagramFetcher(BaseFetcher):
             loader.context._session.proxies.update(settings.proxies)
             logger.info("Instagram traffic routed through proxy %s", settings.ig_proxy)
 
-        # Authenticate if a username is configured. A cached session is enough —
-        # the password is only needed the first time (or after it expires).
-        if settings.ig_username:
+        # Authenticate if any method is configured.
+        if settings.ig_auth_enabled:
             self._login(loader)
 
         self._loader = loader
         return loader
 
     def _login(self, loader: instaloader.Instaloader) -> None:
-        user = settings.ig_username
         session_dir = Path(settings.ig_session_dir)
         session_dir.mkdir(parents=True, exist_ok=True)
+
+        # 0) Best path for local dev: a `sessionid` cookie pasted from Chrome.
+        #    No password, no checkpoint — works behind a VPN.
+        if settings.ig_sessionid:
+            self._login_with_sessionid(loader, session_dir)
+            return
+
+        user = settings.ig_username
         session_file = session_dir / f"{user}.session"
 
         # 1) Reuse a cached session if present (no password required).
@@ -126,6 +132,39 @@ class InstagramFetcher(BaseFetcher):
             if self._looks_like_network_block(exc):
                 raise FetchError(self._connection_hint(exc)) from exc
             raise FetchError(f"Instagram login failed: {exc}") from exc
+
+    def _login_with_sessionid(
+        self, loader: instaloader.Instaloader, session_dir: Path
+    ) -> None:
+        """Authenticate using a `sessionid` cookie copied from Chrome DevTools."""
+        sess = loader.context._session
+        sess.cookies.set("sessionid", settings.ig_sessionid, domain=".instagram.com")
+        if settings.ig_ds_user_id:
+            sess.cookies.set(
+                "ds_user_id", settings.ig_ds_user_id, domain=".instagram.com"
+            )
+
+        try:
+            username = loader.test_login()
+        except Exception as exc:  # noqa: BLE001
+            if self._looks_like_network_block(exc):
+                raise FetchError(self._connection_hint(exc)) from exc
+            raise FetchError(f"Validating IG_SESSIONID failed: {exc}") from exc
+
+        if not username:
+            raise FetchError(
+                "IG_SESSIONID is invalid or expired. Copy a fresh `sessionid` "
+                "cookie from Chrome (DevTools - Application - Cookies - "
+                "instagram.com) into backend/.env."
+            )
+
+        loader.context.username = username
+        loader.context.user_id = sess.cookies.get("ds_user_id")
+        try:
+            loader.save_session_to_file(str(session_dir / f"{username}.session"))
+        except Exception:  # noqa: BLE001
+            pass  # session caching is best-effort
+        logger.info("Authenticated to Instagram as %s via sessionid cookie", username)
 
     @staticmethod
     def _looks_like_network_block(exc: Exception) -> bool:
