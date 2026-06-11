@@ -13,6 +13,7 @@ greenlet==3.1.1
 instaloader==4.14.1
 requests==2.32.3
 PySocks==1.7.1  # SOCKS5 proxy support (for networks where IG is blocked)
+browser-cookie3==0.20.1  # import a logged-in browser session (bypasses checkpoint)
 
 # --- Visual analysis ---
 Pillow==11.1.0

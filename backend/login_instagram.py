@@ -69,7 +69,16 @@ def main() -> int:
               "then retry.")
         return 1
     except Exception as exc:  # noqa: BLE001
-        print(f"\n[x] Login failed: {exc}")
+        msg = str(exc)
+        print(f"\n[x] Login failed: {msg}")
+        if "checkpoint" in msg.lower() or "challenge" in msg.lower():
+            print(
+                "\n[!] Instagram wants to verify this login (checkpoint).\n"
+                "    Easiest fix — use the browser-import method instead:\n"
+                "      1) Open instagram.com in Chrome/Edge/Firefox (VPN on) and\n"
+                "         log in, completing any 'Was this you?' verification.\n"
+                "      2) Run:  python import_session.py\n"
+            )
         return 1
 
     session_dir = Path(settings.ig_session_dir)
