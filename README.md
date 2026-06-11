@@ -71,18 +71,25 @@ Edit `backend/.env`:
 | `IG_POST_LIMIT`   | Number of recent posts to analyze (default 20).                |
 | `DATABASE_URL`    | Defaults to local SQLite. Swap for Postgres later, no code changes. |
 
-### One-time Instagram login
+### Instagram authentication
 
-Anonymous Instagram requests get blocked. Log in once (use a secondary account):
+Anonymous Instagram requests get blocked, so the fetcher authenticates. Pick
+the path that fits your environment:
 
-```powershell
-cd backend
-python login_instagram.py        # asks for user / password / 2FA, caches a session
-```
+**Local development (recommended) — Chrome `sessionid` cookie.** No password, no
+checkpoint, works behind a VPN:
 
-Then set just `IG_USERNAME` in `.env` (no password needed afterwards). If
-`instagram.com` is filtered on your network, set `IG_PROXY` first so the helper
-and the app route through your VPN/proxy.
+1. In Chrome, open `instagram.com` and log in (use a secondary account).
+2. `F12` → **Application** → **Cookies** → `https://www.instagram.com` → copy
+   the **`sessionid`** value.
+3. Paste it into `backend/.env` as `IG_SESSIONID=...`.
+4. Verify: `python verify_login.py` → expect `Instagram access works!`
+
+Keep your VPN on while using the app, and set `IG_PROXY` if `instagram.com` is
+filtered on your network.
+
+**Production / unrestricted server.** Just set `IG_USERNAME` and `IG_PASSWORD`
+(or run `python login_instagram.py` once); no proxy or sessionid needed.
 
 > **On Instagram reliability:** anonymous requests are aggressively rate-limited
 > and often blocked. Configuring `IG_USERNAME`/`IG_PASSWORD` once makes fetching
