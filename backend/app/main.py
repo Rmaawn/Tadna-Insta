@@ -13,7 +13,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import analysis_router
+from app.api.routes import analysis_router, media_router
 from app.config import settings
 from app.database import init_db
 
@@ -50,6 +50,7 @@ app.add_middleware(
 )
 
 app.include_router(analysis_router)
+app.include_router(media_router)
 
 
 @app.get("/")

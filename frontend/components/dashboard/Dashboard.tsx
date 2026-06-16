@@ -111,10 +111,13 @@ function Avatar({ src, username }: { src?: string | null; username: string }) {
     </div>
   );
   if (!src || failed) return fallback;
+  // Load through the backend image proxy: Instagram CDN URLs are hotlink-
+  // restricted and often unreachable from the browser, but the backend can
+  // fetch them. Any failure still falls back to the monogram below.
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={src}
+      src={`/api/image?url=${encodeURIComponent(src)}`}
       alt={username}
       onError={() => setFailed(true)}
       referrerPolicy="no-referrer"
