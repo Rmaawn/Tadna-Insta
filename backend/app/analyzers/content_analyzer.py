@@ -62,9 +62,9 @@ class ContentAnalyzer(BaseAnalyzer):
         if cadence.get("consistency_label") == "irregular":
             insights.append(ins("content.irregular", "Posting schedule is irregular — gaps between posts vary widely."))
         if best_slot:
-            insights.append(ins("content.best_window", f"Your strongest publishing window is {best_slot}.", slot=best_slot))
+            insights.append(ins("content.best_window", f"Your strongest publishing window is {best_slot}.", tone="good", slot=best_slot))
         if not insights:
-            insights.append(ins("content.healthy", "Content mix and cadence look healthy — keep the momentum."))
+            insights.append(ins("content.healthy", "Content mix and cadence look healthy — keep the momentum.", tone="good"))
 
         return AnalyzerResult(
             key=self.key,

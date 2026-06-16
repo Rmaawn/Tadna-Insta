@@ -147,13 +147,19 @@ function SignalList({
 }
 
 // --- data helpers: prefer AI output, fall back to deterministic insights ---
+// The fallback splits insights by polarity (tone) so strengths and weaknesses
+// are genuinely different lists — never the same items shown twice.
 function strengths(d: AnalysisDetail): (string | RawInsight)[] {
   if (d.strengths?.length) return d.strengths;
-  return collectInsights(d).slice(0, 4);
+  return collectInsights(d)
+    .filter((i) => i.tone === "good")
+    .slice(0, 5);
 }
 function weaknesses(d: AnalysisDetail): (string | RawInsight)[] {
   if (d.weaknesses?.length) return d.weaknesses;
-  return collectInsights(d).slice(0, 5);
+  return collectInsights(d)
+    .filter((i) => i.tone !== "good")
+    .slice(0, 5);
 }
 function collectInsights(d: AnalysisDetail): RawInsight[] {
   const r = d.report ?? {};

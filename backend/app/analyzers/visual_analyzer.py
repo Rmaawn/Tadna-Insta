@@ -87,17 +87,17 @@ class VisualAnalyzer(BaseAnalyzer):
         if consistency < 45:
             insights.append(ins("visual.scattered", "Thumbnails lack a consistent color identity — the grid looks scattered."))
         elif consistency > 75:
-            insights.append(ins("visual.strong_palette", "Strong, consistent color palette — your grid has a recognizable identity."))
+            insights.append(ins("visual.strong_palette", "Strong, consistent color palette — your grid has a recognizable identity.", tone="good"))
         if text_heavy_ratio > 0.5:
             insights.append(ins("visual.text_heavy", "Most thumbnails are text-heavy; cleaner visuals usually read better in-feed."))
         if face_ratio is not None and face_ratio >= 0.4:
-            insights.append(ins("visual.faces_common", "Posts featuring faces are common — these tend to outperform on engagement."))
+            insights.append(ins("visual.faces_common", "Posts featuring faces are common — these tend to outperform on engagement.", tone="good"))
         elif face_ratio == 0:
             insights.append(ins("visual.no_faces", "No faces detected in thumbnails; human faces typically lift engagement."))
         if brightness < 60:
             insights.append(ins("visual.dark", "Imagery skews dark — consider brighter, higher-contrast visuals."))
         if not insights:
-            insights.append(ins("visual.coherent", "Visual identity is coherent; keep the palette and composition consistent."))
+            insights.append(ins("visual.coherent", "Visual identity is coherent; keep the palette and composition consistent.", tone="good"))
 
         return AnalyzerResult(
             key=self.key,

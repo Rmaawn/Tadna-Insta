@@ -84,7 +84,7 @@ class ProfileAnalyzer(BaseAnalyzer):
         if ratio < 1 and profile.following > 1500:
             insights.append(ins("profile.low_ratio", "Following far more than your followers signals low authority."))
         if not insights:
-            insights.append(ins("profile.solid", "Profile fundamentals are solid; focus on content and consistency next."))
+            insights.append(ins("profile.solid", "Profile fundamentals are solid; focus on content and consistency next.", tone="good"))
 
         # Expose branding so the orchestrator can surface it as a headline score.
         context["brand_score"] = brand_score

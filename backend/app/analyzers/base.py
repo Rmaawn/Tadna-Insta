@@ -9,14 +9,17 @@ from typing import Any
 from app.schemas.schemas import FetchedProfile
 
 
-def ins(code: str, text: str, **params: Any) -> dict[str, Any]:
+def ins(code: str, text: str, *, tone: str = "bad", **params: Any) -> dict[str, Any]:
     """Build a translatable insight.
 
-    Insights are emitted as ``{code, text, params}`` so the frontend can render
-    them in any language (Persian / Arabic / English) from ``code`` + ``params``,
-    while ``text`` is the English fallback that also feeds the AI prompt.
+    Insights are emitted as ``{code, text, tone, params}`` so the frontend can
+    render them in any language (Persian / Arabic / English) from ``code`` +
+    ``params``, while ``text`` is the English fallback that also feeds the AI
+    prompt. ``tone`` ("good" | "bad") marks the insight's polarity so the
+    dashboard can split insights into strengths vs. weaknesses when no AI report
+    is available. Most insights flag a problem, so ``tone`` defaults to "bad".
     """
-    return {"code": code, "text": text, "params": params or {}}
+    return {"code": code, "text": text, "tone": tone, "params": params or {}}
 
 
 @dataclass

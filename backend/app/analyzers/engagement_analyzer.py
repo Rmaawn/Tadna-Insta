@@ -88,17 +88,17 @@ class EngagementAnalyzer(BaseAnalyzer):
         ratio = avg_er / benchmark if benchmark else 0
         er_s, bm_s = f"{avg_er:.1f}", f"{benchmark:.1f}"
         if ratio >= 1.2:
-            insights.append(ins("engagement.above_benchmark", f"Engagement ({er_s}%) is above the benchmark for your size — your audience is active.", er=er_s))
+            insights.append(ins("engagement.above_benchmark", f"Engagement ({er_s}%) is above the benchmark for your size — your audience is active.", tone="good", er=er_s))
         elif ratio < 0.7:
             insights.append(ins("engagement.below_benchmark", f"Engagement ({er_s}%) is below the {bm_s}% benchmark for your size.", er=er_s, benchmark=bm_s))
         if direction == "declining":
             insights.append(ins("engagement.declining", "Engagement is trending downward across recent posts."))
         elif direction == "rising":
-            insights.append(ins("engagement.rising", "Engagement is trending upward — recent content is resonating."))
+            insights.append(ins("engagement.rising", "Engagement is trending upward — recent content is resonating.", tone="good"))
         if stdev_er > avg_er:
             insights.append(ins("engagement.inconsistent", "Engagement is highly inconsistent — a few posts carry most of the interaction."))
         if not insights:
-            insights.append(ins("engagement.steady", "Engagement is steady and in line with expectations for your audience size."))
+            insights.append(ins("engagement.steady", "Engagement is steady and in line with expectations for your audience size.", tone="good"))
 
         return AnalyzerResult(
             key=self.key,

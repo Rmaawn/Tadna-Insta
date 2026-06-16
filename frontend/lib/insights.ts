@@ -150,6 +150,7 @@ const INSIGHTS: Record<string, Tri> = {
 export interface RawInsight {
   code?: string;
   text?: string;
+  tone?: "good" | "bad";
   params?: Record<string, string | number>;
 }
 
