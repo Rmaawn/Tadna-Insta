@@ -82,7 +82,9 @@ class RecommendationEngine:
             raise LLMError("AI recommendations require a configured OpenAI API key.")
 
         language_name = LANGUAGE_NAMES.get(language, LANGUAGE_NAMES["en"])
-        system = SYSTEM_PROMPT.format(language=language_name)
+        # Use replace (not str.format) because the prompt contains a literal JSON
+        # example with `{`/`}` braces that str.format would mis-parse as fields.
+        system = SYSTEM_PROMPT.replace("{language}", language_name)
         user_payload = self._build_payload(profile, scores, report)
         data = await self.provider.generate_json(
             system,
