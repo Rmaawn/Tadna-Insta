@@ -34,9 +34,13 @@ class Settings(BaseSettings):
     # --- Database ---
     database_url: str = "sqlite+aiosqlite:///./tadna.db"
 
-    # --- OpenAI ---
+    # --- OpenAI (or any OpenAI-compatible provider: Groq, OpenRouter, …) ---
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
+    # Override to point at an OpenAI-compatible endpoint. Leave empty for OpenAI.
+    #   Groq:       https://api.groq.com/openai/v1
+    #   OpenRouter: https://openrouter.ai/api/v1
+    openai_base_url: str | None = None
 
     # --- Instagram ---
     ig_username: str | None = None

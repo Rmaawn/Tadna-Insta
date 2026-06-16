@@ -31,7 +31,12 @@ class OpenAIProvider(LLMProvider):
         if self._client is None:
             from openai import AsyncOpenAI
 
-            self._client = AsyncOpenAI(api_key=settings.openai_api_key)
+            # base_url is optional: empty -> official OpenAI; set it to use any
+            # OpenAI-compatible provider (Groq, OpenRouter, …) with no code change.
+            self._client = AsyncOpenAI(
+                api_key=settings.openai_api_key,
+                base_url=settings.openai_base_url or None,
+            )
         return self._client
 
     async def generate_json(
