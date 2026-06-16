@@ -29,6 +29,7 @@ export function Dashboard({ data }: { data: AnalysisDetail }) {
   const { t } = useI18n();
   const [tab, setTab] = useState("overview");
   const profileMetrics = data.report?.profile?.metrics ?? {};
+  const account = data.report?.account ?? {};
 
   return (
     <div>
@@ -39,10 +40,13 @@ export function Dashboard({ data }: { data: AnalysisDetail }) {
         className="glass mb-6 flex flex-wrap items-center justify-between gap-4 p-5"
       >
         <div className="flex items-center gap-4">
-          <div className="grid h-14 w-14 place-items-center rounded-2xl bg-accent-gradient text-xl font-bold text-white shadow-glow">
-            {data.username.charAt(0).toUpperCase()}
-          </div>
+          <Avatar src={account.profile_pic_url} username={data.username} />
           <div>
+            {account.full_name && (
+              <div className="text-sm font-medium text-slate-200">
+                {account.full_name}
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-semibold text-white" dir="ltr">
                 @{data.username}
@@ -93,6 +97,29 @@ export function Dashboard({ data }: { data: AnalysisDetail }) {
       {tab === "visual" && <VisualIdentity data={data} />}
       {tab === "ai" && <Recommendations data={data} />}
     </div>
+  );
+}
+
+// Profile avatar with a graceful fallback to the username initial. Instagram
+// CDN URLs are loaded directly (like post thumbnails) and may expire or be
+// blocked, so any load error drops back to the gradient monogram.
+function Avatar({ src, username }: { src?: string | null; username: string }) {
+  const [failed, setFailed] = useState(false);
+  const fallback = (
+    <div className="grid h-14 w-14 place-items-center rounded-2xl bg-accent-gradient text-xl font-bold text-white shadow-glow">
+      {username.charAt(0).toUpperCase()}
+    </div>
+  );
+  if (!src || failed) return fallback;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={username}
+      onError={() => setFailed(true)}
+      referrerPolicy="no-referrer"
+      className="h-14 w-14 rounded-2xl object-cover shadow-glow"
+    />
   );
 }
 

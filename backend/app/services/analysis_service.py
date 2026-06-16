@@ -88,6 +88,13 @@ class AnalysisService:
             result = analyzer_cls().analyze(profile, context)
             report[result.key] = result.to_dict()
 
+        # Display-only account header (avatar, name) for the dashboard.
+        report["account"] = {
+            "username": profile.username,
+            "full_name": profile.full_name,
+            "profile_pic_url": profile.profile_pic_url,
+        }
+
         # 3) Headline scores.
         scores = {
             "profile": report.get("profile", {}).get("score"),
