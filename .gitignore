@@ -18,3 +18,10 @@ frontend/.env.local
 *.log
 .idea/
 .vscode/
+
+# --- Local docs (not for repo) ---
+DEPLOY_LIARA.md
+PROJECT_GUIDE_FA.md
+
+# --- Build artifacts ---
+frontend/tsconfig.tsbuildinfo
