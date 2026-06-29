@@ -136,35 +136,70 @@ class InstagramFetcher(BaseFetcher):
     def _login_with_sessionid(
         self, loader: instaloader.Instaloader, session_dir: Path
     ) -> None:
-        """Authenticate using a `sessionid` cookie copied from Chrome DevTools."""
-        sess = loader.context._session
-        sess.cookies.set("sessionid", settings.ig_sessionid, domain=".instagram.com")
-        if settings.ig_ds_user_id:
-            sess.cookies.set(
-                "ds_user_id", settings.ig_ds_user_id, domain=".instagram.com"
-            )
+        """Authenticate using a `sessionid` cookie copied from Chrome DevTools.
 
+        ``instaloader.test_login()`` pings a legacy GraphQL endpoint that
+        Instagram now throttles/blocks (it answers ``401 "Please wait a few
+        minutes…"``), so it returns ``None`` even for a perfectly valid
+        session. We therefore treat the check as *best-effort*: if it confirms
+        a username we use it, otherwise we keep the session cookie and let the
+        real profile fetch be the source of truth — that endpoint
+        (``web_profile_info``) works fine and will surface any genuine auth
+        failure with a clearer, page-specific message. This avoids aborting a
+        valid session with a misleading "IG_SESSIONID is invalid or expired".
+        """
+        sess = loader.context._session
+        sessionid = settings.ig_sessionid
+        sess.cookies.set("sessionid", sessionid, domain=".instagram.com")
+
+        # The Instagram user id is the leading part of the sessionid
+        # ("<ds_user_id>:<token>:…", URL-encoded as "%3A"). Set the ds_user_id
+        # cookie from it so requests are treated as authenticated even when no
+        # explicit IG_DS_USER_ID is configured.
+        ds_user_id = settings.ig_ds_user_id or self._ds_user_id_from_sessionid(sessionid)
+        if ds_user_id:
+            sess.cookies.set("ds_user_id", ds_user_id, domain=".instagram.com")
+
+        username = None
         try:
             username = loader.test_login()
         except Exception as exc:  # noqa: BLE001
             if self._looks_like_network_block(exc):
                 raise FetchError(self._connection_hint(exc)) from exc
-            raise FetchError(f"Validating IG_SESSIONID failed: {exc}") from exc
+            logger.warning("Could not verify Instagram session: %s", exc)
 
-        if not username:
-            raise FetchError(
-                "IG_SESSIONID is invalid or expired. Copy a fresh `sessionid` "
-                "cookie from Chrome (DevTools - Application - Cookies - "
-                "instagram.com) into backend/.env."
+        loader.context.user_id = ds_user_id
+
+        if username:
+            loader.context.username = username
+            try:
+                loader.save_session_to_file(str(session_dir / f"{username}.session"))
+            except Exception:  # noqa: BLE001
+                pass  # session caching is best-effort
+            logger.info(
+                "Authenticated to Instagram as %s via sessionid cookie", username
             )
+            return
 
-        loader.context.username = username
-        loader.context.user_id = sess.cookies.get("ds_user_id")
-        try:
-            loader.save_session_to_file(str(session_dir / f"{username}.session"))
-        except Exception:  # noqa: BLE001
-            pass  # session caching is best-effort
-        logger.info("Authenticated to Instagram as %s via sessionid cookie", username)
+        # test_login() couldn't confirm the session — almost always because
+        # Instagram throttled its legacy check endpoint, not because the cookie
+        # is bad. Proceed with the sessionid cookie set; the fetch will report a
+        # real auth problem if one exists.
+        logger.warning(
+            "Instagram session not confirmed by test_login (the legacy check "
+            "endpoint is throttled); proceeding with the sessionid cookie. If "
+            "fetches fail with an auth error, refresh IG_SESSIONID in backend/.env."
+        )
+
+    @staticmethod
+    def _ds_user_id_from_sessionid(sessionid: str | None) -> str | None:
+        """Extract the numeric Instagram user id embedded in a sessionid cookie."""
+        if not sessionid:
+            return None
+        from urllib.parse import unquote
+
+        head = unquote(sessionid).split(":", 1)[0]
+        return head if head.isdigit() else None
 
     @staticmethod
     def _looks_like_network_block(exc: Exception) -> bool:
