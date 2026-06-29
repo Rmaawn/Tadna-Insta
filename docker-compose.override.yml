@@ -1,0 +1,25 @@
+# Development overrides — applied automatically by `docker compose up`.
+#
+# Mounts your source into the containers and runs both with hot reload, so
+# edits on the host are reflected live. For production, skip this file:
+#   docker compose -f docker-compose.yml up -d --build
+
+services:
+  backend:
+    # Live code + reload. Uses the existing tadna.db / .ig_sessions in ./backend
+    # so your current login session and data are reused during development.
+    environment:
+      DATABASE_URL: sqlite+aiosqlite:///./tadna.db
+      IG_SESSION_DIR: ./.ig_sessions
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    # Live code + `next dev`. The anonymous volumes keep the image's
+    # node_modules/.next from being shadowed by the host bind mount.
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev

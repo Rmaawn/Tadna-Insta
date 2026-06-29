@@ -1,0 +1,37 @@
+# Tadna Insta — production-style stack.
+#
+#   docker compose up -d --build          # dev (this file + override, hot reload)
+#   docker compose -f docker-compose.yml up -d --build   # production (no reload)
+#
+# Both services start together; `depends_on` makes the frontend wait for the
+# backend, so you no longer have to launch them in a specific order by hand.
+
+services:
+  backend:
+    build: ./backend
+    # Secrets and Instagram/OpenAI config come from backend/.env.
+    env_file: ./backend/.env
+    # Keep persisted data (DB + IG sessions) inside the named volume so it
+    # survives rebuilds. These override whatever paths are in .env.
+    environment:
+      DATABASE_URL: sqlite+aiosqlite:////app/data/tadna.db
+      IG_SESSION_DIR: /app/data/.ig_sessions
+    volumes:
+      - tadna-data:/app/data
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    # Next.js proxies /api/* to the backend over the compose network.
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:8000
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  tadna-data:

@@ -36,6 +36,37 @@ analysis → AI → persistence. New analyzers register in
 
 ---
 
+## Quick start with Docker (recommended)
+
+The whole stack — frontend + backend — runs with a single command. No need to
+start the two services by hand or in a particular order; Docker Compose brings
+them up together.
+
+```bash
+# 1. Fill in your config (OpenAI key, Instagram auth, etc.)
+cp backend/.env.example backend/.env   # then edit backend/.env
+
+# 2. Development — hot reload on both services (edits on the host apply live):
+docker compose up --build
+
+# 3. Production — optimized build, no reload:
+docker compose -f docker-compose.yml up -d --build
+```
+
+- Frontend: <http://localhost:3000> · Backend API docs: <http://localhost:8000/docs>
+- `docker compose up` automatically layers `docker-compose.override.yml` (the dev
+  config). Passing `-f docker-compose.yml` alone skips it for a production run.
+- The SQLite database and cached Instagram sessions are persisted in the
+  `tadna-data` volume (production) or your local `backend/` folder (dev), so they
+  survive rebuilds.
+- Instagram/OpenAI settings are read from `backend/.env`. If `instagram.com` is
+  blocked on your network, keep your system-wide tunnel on; on an unrestricted
+  server (e.g. production) no proxy is needed.
+
+> Prefer running the services natively instead? The manual setup is below.
+
+---
+
 ## Prerequisites
 
 - Python 3.11+ (tested on 3.13)

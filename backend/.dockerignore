@@ -1,0 +1,14 @@
+# Secrets — provided at runtime via docker-compose env_file, never baked in.
+.env
+
+# Local data — recreated / persisted via a volume instead.
+*.db
+.ig_sessions/
+data/
+
+# Python cruft
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.log
